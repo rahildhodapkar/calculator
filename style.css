@@ -43,7 +43,7 @@ body {
     user-select: none;
 }
 
-#buttons div {
+#buttons button {
     flex-basis: 25%;
     font-size: 36px;
     display: flex;   
@@ -53,7 +53,7 @@ body {
     border-radius: 5%;
 }
 
-#buttons .number {
+#buttons .number{
     background-color: rgb(197, 124, 249);
     
 }
@@ -74,6 +74,3 @@ body {
 #clear {
     background-color:rgb(200, 245, 200);
 }
-
-
-

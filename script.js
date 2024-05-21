@@ -1,9 +1,11 @@
-let res = 0;
-let modifier = 0;
+let res = "0";
+let modifier = "0";
 let operator = "";
 
 let isCleared = true;
 let isEqualed = false;
+let resDecimal = false; 
+let modDecimal = false; 
 
 const display = document.querySelector("#display p");
 
@@ -12,9 +14,7 @@ function roundToFive(num) {
 }
 
 function formatNumber(num) {
-    if (num < 1) {
-        num = roundToFive(num);
-    }
+    num = parseFloat(num.toFixed(5));
     if (Math.abs(num) >= 1e7 || (Math.abs(num) < 1e-3 && num !== 0)) {
         return num.toExponential(2);
     }
@@ -23,21 +23,47 @@ function formatNumber(num) {
 
 document.querySelectorAll(".number").forEach((btn) => {
     btn.addEventListener("click", () => {
-        if (operator === "") {
-            if (isEqualed) {
-                res = 0;
-                isEqualed = false;
+        const value = btn.textContent;
+        if (value === ".") {
+            if (operator === "") {
+                if (!resDecimal) {
+                    resDecimal = true;
+                    res += ".";
+                    display.textContent = res;
+                }
+            } else {
+                if (!modDecimal) {
+                    modDecimal = true;
+                    modifier += ".";
+                    display.textContent = modifier;
+                }
             }
-            if (isCleared) {
-                isCleared = false;
-            }
-            res = res * 10;
-            res += Number(btn.textContent);
-            display.textContent = formatNumber(res);
         } else {
-            modifier = modifier * 10;
-            modifier += Number(btn.textContent);
-            display.textContent = formatNumber(modifier);
+            if (operator === "") {
+                if (isEqualed) {
+                    res = "0";
+                    isEqualed = false;
+                    resDecimal = false;
+                }
+                if (isCleared) {
+                    isCleared = false;
+                    res = "0";
+                    resDecimal = false;
+                }
+                if (resDecimal) {
+                    res += value;
+                } else {
+                    res = res === "0" ? value : res + value;
+                }
+                display.textContent = formatNumber(parseFloat(res));
+            } else {
+                if (modDecimal) {
+                    modifier += value;
+                } else {
+                    modifier = modifier === "0" ? value : modifier + value;
+                }
+                display.textContent = formatNumber(parseFloat(modifier));
+            }
         }
     });
 });
@@ -46,19 +72,21 @@ function eval() {
     let answer;
 
     if (operator === "*") {
-        answer = res * modifier;
+        answer = parseFloat(res) * parseFloat(modifier);
     } else if (operator === "/") {
-        answer = res / modifier;
+        answer = parseFloat(res) / parseFloat(modifier);
     } else if (operator === "+") {
-        answer = res + modifier;
+        answer = parseFloat(res) + parseFloat(modifier);
     } else {
-        answer = res - modifier;
+        answer = parseFloat(res) - parseFloat(modifier);
     }
 
-    res = answer;
+    res = answer.toString();
     operator = "";
-    modifier = 0;
+    modifier = "0";
     isEqualed = true;
+    resDecimal = false;
+    modDecimal = false;
     return answer;
 }
 
@@ -73,37 +101,40 @@ document.querySelectorAll(".operator").forEach((btn) => {
         } else if (btn.textContent === "-") {
             operator = "-";
         } else {
-            if (modifier !== 0) {
+            if (modifier !== "0") {
                 display.textContent = formatNumber(eval());
             }
         }
+        console.log(operator);
     });
 });
 
 document.querySelector("#clear").addEventListener("click", () => {
     display.textContent = "0";
-    res = 0;
-    modifier = 0;
+    res = "0";
+    modifier = "0";
     operator = "";
     isCleared = true;
+    resDecimal = false;
+    modDecimal = false;
 });
 
 document.querySelector("#percent").addEventListener("click", () => {
     if (operator === "") {
-        res /= 100;
-        display.textContent = res;
+        res = (parseFloat(res) / 100).toString();
+        display.textContent = formatNumber(parseFloat(res));
     } else {
-        modifier /= 100;
-        display.textContent = modifier;
+        modifier = (parseFloat(modifier) / 100).toString();
+        display.textContent = formatNumber(parseFloat(modifier));
     }
 });
 
 document.querySelector("#negative").addEventListener("click", () => {
     if (operator === "") {
-        res *= -1;
-        display.textContent = res;
+        res = (parseFloat(res) * -1).toString();
+        display.textContent = formatNumber(parseFloat(res));
     } else {
-        modifier *= -1;
-        display.textContent = modifier;
+        modifier = (parseFloat(modifier) * -1).toString();
+        display.textContent = formatNumber(parseFloat(modifier));
     }
 });
